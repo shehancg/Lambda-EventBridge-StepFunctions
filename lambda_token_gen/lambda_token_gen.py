@@ -2,14 +2,14 @@ import requests
 from os import environ
 from aws_lambda_powertools.utilities import parameters
 
-def lambda_handler(event, context):
+def handler(event, context):
     # Retrieve secret data from AWS Secrets Manager
-    secret = parameters.get_secret(environ.get('secret_arn'), transform='json', max_age=60)
+    secret = parameters.get_secret(environ.get('SECRET_ARN'), transform='json', max_age=60)
 
     # Get environment variables for the API request
-    url = environ.get('auth_url')
-    company_code = environ.get('company_code')
-    secretPrefix = environ.get('secret_prefix')
+    url = environ.get('AUTH_URL')
+    company_code = environ.get('COMPANY_CODE')
+    secretPrefix = environ.get('SECRET_PREFIX')
     username_key = secretPrefix + "_username"
     pw_key = secretPrefix + "_pw"
 

@@ -33,3 +33,9 @@ package
 function.zip
 
 .env
+
+package_one
+function_one.zip
+
+package_two
+function_two.zip

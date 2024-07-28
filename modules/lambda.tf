@@ -6,7 +6,18 @@ resource "aws_lambda_function" "fetch_token" {
   runtime          = "python3.8"
   filename         = "${path.module}./lambda_token_gen/function_one.zip"
   source_code_hash = filebase64sha256("${path.module}./lambda_token_gen/function_one.zip")
+
+# Add environment variables
+  environment {
+    variables = {
+      SECRET_ARN     = var.secret_arn
+      AUTH_URL       = var.auth_url
+      COMPANY_CODE   = var.company_code
+      SECRET_PREFIX  = var.secret_prefix
+    }
+  }
 }
+
 
 // Lambda function to sync data
 resource "aws_lambda_function" "sync_data" {

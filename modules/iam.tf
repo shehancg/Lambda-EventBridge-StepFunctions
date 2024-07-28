@@ -20,6 +20,22 @@ resource "aws_iam_role_policy_attachment" "lambda_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+// Adding an inline policy to allow access to Secrets Manager
+resource "aws_iam_role_policy" "secrets_manager_policy" {
+  name   = "secrets_manager_policy"
+  role   = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect   = "Allow",
+      Action   = [
+        "secretsmanager:GetSecretValue"
+      ],
+      Resource = "*"
+    }]
+  })
+}
+
 // IAM role for Step Functions execution
 resource "aws_iam_role" "step_functions_exec" {
   name = "step_functions_exec_role"
