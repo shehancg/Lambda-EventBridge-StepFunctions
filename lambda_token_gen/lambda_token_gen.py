@@ -10,6 +10,7 @@ def handler(event, context):
     url = environ.get('AUTH_URL')
     company_code = environ.get('COMPANY_CODE')
     secretPrefix = environ.get('SECRET_PREFIX')
+
     username_key = secretPrefix + "_username"
     pw_key = secretPrefix + "_pw"
 
