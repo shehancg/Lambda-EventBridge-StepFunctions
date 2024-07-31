@@ -7,7 +7,10 @@ resource "aws_lambda_function" "fetch_token" {
   filename         = "${path.module}./lambda_token_gen/function_one.zip"
   source_code_hash = filebase64sha256("${path.module}./lambda_token_gen/function_one.zip")
 
-# Add environment variables
+  // create a new version when the function is updated
+  publish = true 
+
+  # Add environment variables
   environment {
     variables = {
       SECRET_ARN     = var.secret_arn
@@ -16,6 +19,13 @@ resource "aws_lambda_function" "fetch_token" {
       SECRET_PREFIX  = var.secret_prefix
     }
   }
+}
+
+# Create Lambda function alias for fetch_token
+resource "aws_lambda_alias" "fetch_token_alias" {
+  name             = "live"
+  function_name    = aws_lambda_function.fetch_token.function_name
+  function_version = aws_lambda_function.fetch_token.version
 }
 
 
@@ -28,10 +38,20 @@ resource "aws_lambda_function" "sync_data" {
   filename         = "${path.module}./lambda_api_call/function_two.zip"
   source_code_hash = filebase64sha256("${path.module}./lambda_api_call/function_two.zip")
 
+  // create a new version when the function is updated
+  publish = true 
+
   environment {
     variables = {
       API_KEY = var.api_key
       CITY    = var.city
     }
   }
+}
+
+# Create Lambda function alias for sync_data
+resource "aws_lambda_alias" "sync_data_alias" {
+  name             = "live"
+  function_name    = aws_lambda_function.sync_data.function_name
+  function_version = aws_lambda_function.sync_data.version
 }

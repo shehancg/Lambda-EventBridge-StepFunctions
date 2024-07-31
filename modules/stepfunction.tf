@@ -10,7 +10,7 @@ resource "aws_sfn_state_machine" "state_machine" {
     States = {
       FetchAccessToken = {
         Type = "Task",
-        Resource = aws_lambda_function.fetch_token.arn,
+        Resource = "${aws_lambda_alias.fetch_token_alias.arn}",
         Next = "SyncData",
         Catch = [{
           ErrorEquals = ["States.ALL"],
@@ -20,7 +20,7 @@ resource "aws_sfn_state_machine" "state_machine" {
       },
       SyncData = {
         Type = "Task",
-        Resource = aws_lambda_function.sync_data.arn,
+        Resource = "${aws_lambda_alias.sync_data_alias.arn}",
         End = true,
         Catch = [{
           ErrorEquals = ["States.ALL"],
