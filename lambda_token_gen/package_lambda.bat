@@ -7,7 +7,6 @@ set PACKAGE_DIR=package_one
 set ZIP_FILE=function_one.zip
 set REQUIREMENTS_FILE=requirements.txt
 set LAMBDA_FUNCTION_FILE=lambda_token_gen.py
-set ENV_FILE=lambda_token_generation\.env
 
 rem Clean up previous builds
 if exist %PACKAGE_DIR% rd /s /q %PACKAGE_DIR%
@@ -19,9 +18,8 @@ mkdir %PACKAGE_DIR%
 rem Install dependencies into package directory
 pip install -r %REQUIREMENTS_FILE% -t %PACKAGE_DIR%
 
-rem Copy Lambda function code and .env file into package directory
+rem Copy Lambda function code into package directory
 copy %LAMBDA_FUNCTION_FILE% %PACKAGE_DIR%
-copy .env %PACKAGE_DIR%\
 
 rem Create zip file from package directory contents
 cd %PACKAGE_DIR%

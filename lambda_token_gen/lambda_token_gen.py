@@ -1,40 +1,39 @@
+import boto3
 import requests
+import json
 from os import environ
-from aws_lambda_powertools.utilities import parameters
 
-def handler(event, context):
-    # Retrieve secret data from AWS Secrets Manager
-    secret = parameters.get_secret(environ.get('SECRET_ARN'), transform='json', max_age=60)
+def get_secret(secret_arn):
+    client = boto3.client('secretsmanager')
+    response = client.get_secret_value(SecretId=secret_arn)
+    return json.loads(response['SecretString'])
 
-    # Get environment variables for the API request
-    url = environ.get('AUTH_URL')
-    company_code = environ.get('COMPANY_CODE')
-    secretPrefix = environ.get('SECRET_PREFIX')
-
-    username_key = secretPrefix + "_username"
-    pw_key = secretPrefix + "_pw"
-
-    # Extract username and password from the retrieved secret
-    username = secret.get(username_key)
-    password = secret.get(pw_key)
-
-    # Prepare the headers and data for the API request
-    headers = {
-        "Content-Type": "application/json"
-    }
-    data = {
-        "userName": username,
-        "passWord": password,
+def prepare_auth_data(secret, company_code, secret_prefix):
+    username_key = f"{secret_prefix}_username"
+    pw_key = f"{secret_prefix}_pw"
+    return {
+        "userName": secret[username_key],
+        "passWord": secret[pw_key],
         "companyCode": company_code,
         "operatingSystem": 3
     }
 
-    # Make the POST request to the authentication URL
+def make_auth_request(url, data):
+    headers = {"Content-Type": "application/json"}
     response = requests.post(url, headers=headers, json=data)
-    responseData = response.json()
+    return response.json()
 
-    # Extract the authentication token from the response
-    authToken = responseData["authToken"]
-    print(authToken)
+def handler(event, context):
+    secret_arn = environ['SECRET_ARN']
+    auth_url = environ['AUTH_URL']
+    company_code = environ['COMPANY_CODE']
+    secret_prefix = environ['SECRET_PREFIX']
 
-    return {"authToken": authToken}
+    secret = get_secret(secret_arn)
+    auth_data = prepare_auth_data(secret, company_code, secret_prefix)
+    response_data = make_auth_request(auth_url, auth_data)
+
+    auth_token = response_data["authToken"]
+    print(auth_token)
+
+    return {"authToken": auth_token}
